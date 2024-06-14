@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Sascha Baumeister" />
+    <meta name="dcterms.rightsHolder" content="Sascha Baumeister" />
+    <meta name="dcterms.rights" content="all rights reserved" />
+    <meta name="dcterms.dateCopyrighted" content="2023" />
+
+    <title>Kochbuch-App</title>
+    <link rel="icon" type="image/png" href="image/cookbook.png" />
+    <link rel="stylesheet" href="css/cookbook.css" />
+
+    <script type="module" async="true" src="js/authentication-tab-controller.js"></script>
+    <script type="module" async="true" src="js/preferences-tab-controller.js"></script>
+    <script type="module" async="true" src="js/ingredient-type-editor-tab-controller.js"></script>
+    <!--script type="module" async="true" src="js/recipe-editor-tab-controller.js"></script-->
+    <script type="module" async="true" src="js/recipe-view-tab-controller.js"></script>
+
+    <template class="authentication">
+      <section class="authentication">
+        <fieldset class="authentication">
+          <legend>Authentifizierung</legend>
+          <div>
+            <label>Email</label>
+            <input type="email" class="email" />
+          </div>
+          <div>
+            <label>Passwort</label>
+            <input type="password" class="password" />
+          </div>
+          <div>
+            <button type="button" class="authentication">login</button>
+          </div>
+        </fieldset>
+      </section>
+    </template>
+
+    <template class="preferences">
+      <section class="preferences">
+        <div class="avatar">
+          <label>Avatar</label>
+          <img class="avatar" ondragover="event.preventDefault()" ondrop="event.preventDefault()" />
+        </div>
+        <div class="credentials">
+          <div>
+            <label>Email</label>
+            <input type="email" class="email" />
+          </div>
+          <div>
+            <label>Passwort</label>
+            <input type="password" class="password" />
+          </div>
+          <div>
+            <label>Gruppe</label>
+            <select class="group" autocomplete="off">
+              <option value="USER">Benutzer</option>
+              <option value="ADMIN">Administrator</option>
+            </select>
+          </div>
+        </div>
+        <div class="personal">
+          <span class="name">
+            <div>
+              <label>Titel</label>
+              <input type="text" class="title" />
+            </div>
+            <div>
+              <label>Nachname</label>
+              <input type="text" class="surname" />
+            </div>
+            <div>
+              <label>Vorname</label>
+              <input type="text" class="forename" />
+            </div>
+          </span>
+          <span class="address">
+            <div>
+              <label>PLZ</label>
+              <input type="text" class="postcode" />
+            </div>
+            <div>
+              <label>Straße</label>
+              <input type="text" class="street" />
+            </div>
+            <div>
+              <label>Ort</label>
+              <input type="text" class="city" />
+            </div>
+            <div>
+              <label>Staat</label>
+              <input type="text" class="country" />
+            </div>
+          </span>
+        </div>
+        <fieldset class="phones">
+          <legend>Telefon</legend>
+          <span class="phones"></span>
+          <button type="button" class="add">hinzufügen</button>
+        </fieldset>
+        <button type="button" class="submit">speichern</button>
+      </section>
+    </template>
+
+    <template class="ingredient-types-view">
+      <section class="ingredient-types-view">
+        <table class="ingredient-types">
+          <thead>
+            <tr>
+              <th>Avatar</th>
+              <th>Name</th>
+              <th>Restriktion</th>
+              <th>Modifiziert</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="controls">
+          <button type="button" class="create">neu</button>
+        </div>
+      </section>
+    </template>
+
+    <template class="ingredient-types-view-row">
+      <tr>
+        <td>
+          <button type="button" class="access">
+            <img class="avatar" />
+          </button>
+        </td>
+        <td class="alias text"></td>
+        <td class="restriction text"></td>
+        <td class="modified number"></td>
+      </tr>
+    </template>
+
+    <template class="ingredient-type-editor">
+      <section class="ingredient-type-editor">
+        <div>
+          <label>Avatar</label>
+          <img class="avatar" ondragover="event.preventDefault()" ondrop="event.preventDefault()" />
+          <span />
+          <div>
+            <label>Name</label>
+            <input type="text" class="alias" />
+          </div>
+          <div>
+            <label>Restriktion</label>
+            <select class="restriction" autocomplete="off">
+              <option value="NONE">Keine</option>
+              <option value="PESCATARIAN">Pescatarisch</option>
+              <option value="LACTO_OVO_VEGETARIAN">Ovo-Lacto-Vegetarisch</option>
+              <option value="LACTO_VEGETARIAN">Lacto-Vegetarisch</option>
+              <option value="VEGAN">Vegan</option>
+            </select>
+          </div>
+          <div class="description">
+            <label>Beschreibung</label>
+            <textarea class="description"></textarea>
+          </div>
+          <div class="controls">
+            <button type="button" class="submit">speichern</button>
+            <button type="button" class="cancel">zurück</button>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <template class="recipes-view-query">
+      <section class="recipes-view-query">
+        <h1>Filter-Kriterien</h1>
+        <div>
+          <label class="left">Restriktion</label>
+          <select class="restriction" autocomplete="off">
+            <option value="NONE">Keine</option>
+            <option value="PESCATARIAN">Pescatarisch</option>
+            <option value="LACTO_OVO_VEGETARIAN">Ovo-Lacto-Vegetarisch</option>
+            <option value="LACTO_VEGETARIAN">Lacto-Vegetarisch</option>
+            <option value="VEGAN">Vegan</option>
+          </select>
+          <label class="right">Titel</label>
+          <input type="text" class="title" />
+        </div>
+        <div>
+          <label class="left">Kategorie</label>
+          <select class="category" autocomplete="off">
+            <option value="" selected="true">(auswählen)</option>
+            <option value="MAIN_COURSE">Hauptgericht</option>
+            <option value="APPETIZER">Vorspeise</option>
+            <option value="SNACK">Snack</option>
+            <option value="DESSERT">Nachtisch</option>
+            <option value="BREAKFAST">Frühstück</option>
+            <option value="BARBEQUE">Barbeque</option>
+            <option value="ADOLESCENT">Kinderportion</option>
+            <option value="INFANT">Babynahrung</option>
+          </select>
+          <label class="right">Mindestzutaten</label>
+          <input type="number" class="min-ingredient-count" min="0" value="0" />
+        </div>
+        <div class="controls">
+          <button type="button" class="query">suchen</button>
+        </div>
+      </section>
+    </template>
+
+    <template class="recipes-view">
+      <section class="recipes-view">
+        <table class="recipes">
+          <thead>
+            <tr>
+              <th>Avatar</th>
+              <th>Titel</th>
+              <th>Restriktion</th>
+              <th>Kategorie</th>
+              <th>Zutaten</th>
+              <th>Modifiziert</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="controls"></div>
+      </section>
+    </template>
+
+    <template class="recipes-view-row">
+      <tr>
+        <td>
+          <button type="button" class="access">
+            <img class="avatar" />
+          </button>
+        </td>
+        <td class="title text"></td>
+        <td class="restriction text"></td>
+        <td class="category text"></td>
+        <td class="ingredient-count number"></td>
+        <td class="modified number"></td>
+      </tr>
+    </template>
+
+    <template class="recipe-view">
+      <section class="recipe-view">
+        <div class="main">
+          <span>
+            <img class="avatar" />
+          </span>
+          <span>
+            <div>
+              <label>Titel</label>
+              <input type="text" class="title" readonly="true" />
+            </div>
+            <div>
+              <label>Restriktion</label>
+              <input type="text" class="restriction" readonly="true" />
+            </div>
+            <div>
+              <label>Kategorie</label>
+              <input type="text" class="category" readonly="true" />
+            </div>
+          </span>
+        </div>
+        <div class="description">
+          <label>Beschreibung</label>
+          <textarea class="description" readonly="true"></textarea>
+        </div>
+        <div class="instruction">
+          <label>Anleitung</label>
+          <textarea class="instruction" readonly="true"></textarea>
+        </div>
+        <div class="ingredients">
+          <h1>Zutaten</h1>
+          <table class="ingredients">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Art</th>
+                <th>Restriktion</th>
+                <th>Menge</th>
+                <th>Einheit</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="illustrations">
+          <h1>Illustrationen</h1>
+          <table class="illustrations">
+            <thead>
+              <tr>
+                <th>Link</th>
+                <th>Größe (Bytes)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="controls">
+          <button type="button" class="cancel">zurück</button>
+        </div>
+      </section>
+    </template>
+
+    <template class="recipe-view-ingredient-row">
+      <tr>
+        <td>
+          <img class="avatar" />
+        </td>
+        <td class="alias text"></td>
+        <td class="restriction text"></td>
+        <td class="amount number"></td>
+        <td class="unit text"></td>
+      </tr>
+    </template>
+
+    <template class="recipe-view-illustration-row">
+      <tr>
+        <td class="text">
+          <a class="content" target="_blank" />
+        </td>
+        <td class="size number"></td>
+      </tr>
+    </template>
+
+    <template class="recipe-editor">
+      <section class="recipe-editor">
+        <div class="main">
+          <span>
+            <img
+              class="avatar"
+              ondragover="event.preventDefault()"
+              ondrop="event.preventDefault()"
+            />
+          </span>
+          <span>
+            <div>
+              <label>Titel</label>
+              <input type="text" class="title" />
+            </div>
+            <div>
+              <label>Restriktion</label>
+              <input type="text" class="restriction" readonly="true" />
+            </div>
+            <div>
+              <label>Kategorie</label>
+              <select class="category" autocomplete="off">
+                <option value="MAIN_COURSE">Hauptgericht</option>
+                <option value="APPETIZER">Vorspeise</option>
+                <option value="SNACK">Snack</option>
+                <option value="DESSERT">Nachtisch</option>
+                <option value="BREAKFAST">Frühstück</option>
+                <option value="BARBEQUE">Barbeque</option>
+                <option value="ADOLESCENT">Kinderportion</option>
+                <option value="INFANT">Babynahrung</option>
+              </select>
+            </div>
+          </span>
+        </div>
+        <div class="description">
+          <label>Beschreibung</label>
+          <textarea class="description"></textarea>
+        </div>
+        <div class="instruction">
+          <label>Anleitung</label>
+          <textarea class="instruction"></textarea>
+        </div>
+        <div class="controls">
+          <button type="button" class="submit">speichern</button>
+          <button type="button" class="remove">löschen</button>
+          <button type="button" class="cancel">zurück</button>
+        </div>
+        <div class="ingredients">
+          <h1>Zutaten</h1>
+          <table class="ingredients">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Art</th>
+                <th>Restriktion</th>
+                <th>Menge</th>
+                <th>Einheit</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <button type="button" class="create">neu</button>
+        </div>
+        <div class="illustrations">
+          <h1>Illustrationen</h1>
+          <table class="illustrations">
+            <thead>
+              <tr>
+                <th>Link</th>
+                <th>Größe (Bytes)</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <img
+            class="drop-target"
+            src="image/drop-target.png"
+            title="Drop zum Assoziieren"
+            ondragover="event.preventDefault()"
+            ondrop="event.preventDefault()"
+          />
+        </div>
+      </section>
+    </template>
+
+    <template class="recipe-editor-ingredient-row">
+      <tr>
+        <td>
+          <img class="avatar" />
+        </td>
+        <td>
+          <select class="alias" autocomplete="off"></select>
+        </td>
+        <td>
+          <output class="restriction" />
+        </td>
+        <td>
+          <input type="number" class="amount number" value="1" step="0.1" min="0" />
+        </td>
+        <td>
+          <select class="unit" autocomplete="off" />
+          <option value="LITRE">Liter</option>
+          <option value="GRAM">Gramm</option>
+          <option value="TEASPOON">Teelöffel</option>
+          <option value="TABLESPOON">Esslöffel</option>
+          <option value="PINCH">Prise</option>
+          <option value="CUP">Tasse</option>
+          <option value="CAN">Dose</option>
+          <option value="TUBE">Tube</option>
+          <option value="BUSHEL">Bund</option>
+          <option value="PIECE">Stück</option>
+        </td>
+        <td>
+          <button type="button" class="submit">speichern</button>
+          <button type="button" class="remove">entfernen</button>
+        </td>
+      </tr>
+    </template>
+
+    <template class="recipe-editor-illustration-row">
+      <tr>
+        <td class="text">
+          <a class="content" target="_blank" />
+        </td>
+        <td class="size number"></td>
+        <td>
+          <button type="button" class="remove">entfernen</button>
+        </td>
+      </tr>
+    </template>
+  </head>
+
+  <body>
+    <header>
+      <nav class="tabs">
+        <button type="button" class="authentication">Login</button>
+        <button type="button" class="preferences">Einstellungen</button>
+        <button type="button" class="ingredient-type-editor">Zutateneditor</button>
+        <button type="button" class="recipe-editor">Rezepteditor</button>
+        <button type="button" class="recipe-view">Rezeptansicht</button>
+      </nav>
+    </header>
+
+    <main>
+      <article class="left"></article>
+      <article class="center"></article>
+      <article class="right"></article>
+    </main>
+
+    <footer>
+      <label>Nachricht</label>
+      <input type="text" class="message" readonly="true" />
+    </footer>
+  </body>
+</html>

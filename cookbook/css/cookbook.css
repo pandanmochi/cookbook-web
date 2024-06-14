@@ -1,0 +1,372 @@
+/* common CSS rules */
+.hidden {
+	display: none;
+}
+
+html {
+	font-family: sans-serif;
+}
+
+main {
+	display: flex;
+}
+
+section {
+	margin-bottom: 1em;
+}
+
+h1 {
+	margin: 0em 0em 0.2em 0em;
+}
+
+span,nav,label,img {
+	display: inline-block;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+article.left,article.right {
+	width: 0em;
+}
+
+article.center {
+	width: 50em;
+}
+
+header>nav.tabs {
+	margin: 0.5em 0em 0.5em 0em;
+	border: solid 1px #6d6d6d;
+	border-radius: 2em;
+	padding: .55em .5em 0 .5em;
+	background: linear-gradient(#a9a9a9, #7a7a7a);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+	width: 50em;
+
+	button {
+		margin-bottom: 0.6em;
+	}
+
+	button.active {
+		color: green;
+	}
+}
+
+footer {
+	margin-top: 1em;
+	max-width: 50em;
+}
+
+footer>input.message {
+	color: green;
+	width: 85%;
+}
+
+
+/* Authentication tab specific CSS rules */
+article.center>section.authentication {
+	fieldset.authentication {
+		label {
+			width: 5em;
+			text-align: right;
+		}
+
+		input.email,input.password {
+			width: 20em;
+		}
+	}
+}
+
+
+/* Preferences tab specific CSS rules */
+article.center>section.preferences {
+	div.avatar,div.credentials,div.personal,fieldset.phones {
+		margin-bottom: 0.5em;
+		background-color: cornsilk;
+
+		span.name,span.address {
+			vertical-align: middle;
+		}
+
+		label {
+			width: 5em;
+			text-align: right;
+		}
+
+		legend {
+			font-size: 75%;
+		}
+
+		img.avatar {
+			height: 6em;
+			width: 6em;
+		}
+
+		input.email,input.password {
+			width: 20em;
+		}
+
+		input.phone {
+			margin-right: 0.5em;
+		}
+
+		button.add {
+			display: block;
+		}
+	}
+}
+
+
+/* ingredient-type-editor specific CSS rules */
+article.center>section.ingredient-types-view {
+	img.avatar {
+		height: 3em;
+		width: 3em;
+	}
+
+	table.ingredient-types {
+		border-style: solid;
+		border-width: 1px;
+
+		tr {
+			border-style: solid;
+			border-width: 1px;
+		}
+
+		th {
+			padding: 0.5em;
+			background: LightGreen;
+		}
+
+		td {
+			padding: 0em 0.5em;
+		}
+
+		td.number {
+			text-align: right;
+		}
+	}
+}
+
+article.center>section.ingredient-type-editor  {
+	img.avatar {
+		height: 6em;
+		width: 6em;
+		vertical-align: middle;
+	}
+
+	label {
+		text-align: right;
+		width: 6em;
+	}
+}
+
+
+/* recipes-view specific CSS rules */
+article.center>section.recipes-view-query {
+	label {
+		text-align: right;
+	}
+
+	label.left {
+		width: 5em;
+	}
+
+	label.right {
+		width: 7em;
+	}
+
+	select {
+		width: 12.35em;
+	}
+}
+
+article.center>section.recipes-view {
+	img.avatar {
+		height: 3em;
+		width: 3em;
+	}
+
+	table.recipes {
+		border-style: solid;
+		border-width: 1px;
+
+		tr {
+			border-style: solid;
+			border-width: 1px;
+		}
+
+		th {
+			padding: 0.5em;
+			background: LightGreen;
+		}
+
+		td {
+			padding: 0em 0.5em;
+		}
+
+		td.number {
+			text-align: right;
+		}
+	}
+}
+
+
+/* recipes-editor specific CSS rules */
+article.center>section.recipe-editor>div {
+	margin-bottom: 0.5em;
+}
+
+article.center>section.recipe-editor {
+	div.main span {
+		vertical-align: middle;
+	}
+
+	div.main label {
+		width: 5em;
+	}
+
+	div.main img.avatar {
+		height: 6em;
+		width: 6em;
+	}
+
+	div.description>textarea,div.instruction>textarea {
+		width: 100%;
+	}
+
+	div.ingredients {
+		margin-top: 1.5em;
+
+		table.ingredients {
+			border-style: solid;
+			border-width: 1px;
+
+			tr {
+				border-style: solid;
+				border-width: 1px;
+			}
+
+			th {
+				padding: 0.5em;
+				background: LightGreen;
+			}
+
+			td {
+				padding: 0em 0.5em;
+			}
+
+			input.number {
+				width: 6em;
+				text-align: right;
+			}
+
+			img.avatar {
+				height: 3em;
+				width: 3em;
+			}
+		}
+	}
+	
+	div.illustrations {
+		margin-top: 1.5em;
+
+		table.illustrations {
+			th {
+				padding: 0.5em;
+				background: LightGreen;
+			}
+
+			td {
+				padding: 0em 0.5em;
+			}
+
+			td.number {
+				text-align: right;
+			}
+		}
+
+		img.drop-target {
+			margin-top: 1em;
+			height: 5em;
+			width: 5em;
+		}
+	}
+}
+
+
+/* recipes-view specific CSS rules */
+article.center>section.recipe-view>div {
+	margin-bottom: 0.5em;
+}
+
+article.center>section.recipe-view {
+	div.main span {
+		vertical-align: middle;
+	}
+
+	div.main label {
+		width: 5em;
+	}
+
+	div.main img.avatar {
+		height: 6em;
+		width: 6em;
+	}
+
+	div.description>textarea,div.instruction>textarea {
+		width: 100%;
+	}
+
+	div.ingredients {
+		margin-top: 1.5em;
+
+		table.ingredients {
+			border-style: solid;
+			border-width: 1px;
+
+			tr {
+				border-style: solid;
+				border-width: 1px;
+			}
+
+			th {
+				padding: 0.5em;
+				background: LightGreen;
+			}
+
+			td {
+				padding: 0em 0.5em;
+			}
+
+			td.number {
+				text-align: right;
+			}
+
+			img.avatar {
+				height: 3em;
+				width: 3em;
+			}
+		}
+	}
+
+	div.illustrations {
+		margin-top: 1.5em;
+
+		table.illustrations {
+			th {
+				padding: 0.5em;
+				background: LightGreen;
+			}
+
+			td {
+				padding: 0em 0.5em;
+			}
+
+			td.number {
+				text-align: right;
+			}
+		}
+	}
+}
