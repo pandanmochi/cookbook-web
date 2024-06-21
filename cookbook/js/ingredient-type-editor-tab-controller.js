@@ -23,21 +23,48 @@ class IngredientTypeEditorTabController extends Controller {
   /**
    * Handles that activity has changed from false to true.
    */
-  async processActivated() {
+  processActivated() {
     this.clear();
     this.top.querySelector("nav.tabs>button.ingredient-type-editor").classList.add("active");
 
     const viewTemplate = document.querySelector("template.ingredient-types-view");
     const viewSection = viewTemplate.content.firstElementChild.cloneNode(true);
 
-    const editorTemplate = document.querySelector("template.ingredient-type-editor");
-    const editorSection = editorTemplate.content.firstElementChild.cloneNode(true);
-
     this.center.append(viewSection);
-    this.center.append(editorSection);
-    this.center.querySelector("section.ingredient-type-editor").classList.add("hidden");
+
+    // register basic event listeners
+    const createIngredientButton = viewSection.querySelector("button.create");
+    createIngredientButton.addEventListener("click", (event) =>
+      this.#displayEditIngredient({ identity: 0, avatar: { identity: 1 } })
+    );
 
     this.#displayIngredientTypes();
+    }
+    
+  #displayEditIngredient(ingredient) {
+    this.center.querySelector("section.ingredient-types-view").classList.add("hidden");
+    const editorTemplate = document.querySelector("template.ingredient-type-editor");
+    const editorSection = editorTemplate.content.firstElementChild.cloneNode(true);
+    this.center.append(editorSection);
+
+    editorSection.querySelector("img.avatar").src = "/services/documents/" + ingredient.avatar.identity;
+    editorSection.querySelector("input.alias").value = ingredient.alias || "";
+    editorSection.querySelector("select.restriction").value = ingredient.restriction || "NONE";
+    editorSection.querySelector("textarea.description").value = ingredient.description || "";
+      
+    const submitButton = editorSection.querySelector("button.submit");
+    submitButton.addEventListener("click", (event) => this.saveIngredient(ingredient));
+  
+    const cancelButton = editorSection.querySelector("button.cancel");
+    cancelButton.addEventListener("click", (event) => this.cancelEditor());
+
+    const avatarImageElement = editorSection.querySelector("img.avatar");
+    avatarImageElement.addEventListener("dragover", (event) =>
+      this.validateAvatarTransfer(event.dataTransfer)
+    );
+    avatarImageElement.addEventListener("drop", (event) =>
+      this.processSubmitAvatar(ingredient, event.dataTransfer.files[0])
+    );
   }
 
   async #displayIngredientTypes() {
@@ -61,20 +88,8 @@ class IngredientTypeEditorTabController extends Controller {
       viewRowSection.querySelector("td.modified").innerText = new Date(ingredient.modified).toDateString();
 
       const accessEditButton = viewRowSection.querySelector("button.access");
-      accessEditButton.addEventListener("click", (event) => this.editIngredient(ingredient));
+      accessEditButton.addEventListener("click", (event) => this.#displayEditIngredient(ingredient));
     }
-
-    // register basic event listeners
-    const createIngredientButton = viewSection.querySelector("button.create");
-    createIngredientButton.addEventListener("click", (event) =>
-      this.editIngredient({ identity: 0, avatar: { identity: 1 } })
-    );
-
-    const submitButton = editorSection.querySelector("button.submit");
-    submitButton.addEventListener("click", (event) => this.saveIngredient(ingr));
-
-    const cancelButton = editorSection.querySelector("button.cancel");
-    cancelButton.addEventListener("click", (event) => this.cancelEditor());
   }
 
   async saveIngredient(ingredient) {
@@ -90,19 +105,8 @@ class IngredientTypeEditorTabController extends Controller {
       const response = await fetch(resource, { method: "POST", headers: headers, body: JSON.stringify(ingredient) });
       if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
       this.#messageElement.value = "ok.";
-
-      // append new ingredient to list
-      const viewRowTemplate = document.querySelector("template.ingredient-types-view-row");
-      const viewRowSection = viewRowTemplate.content.firstElementChild.cloneNode(true);
-
-      this.center.querySelector("table.ingredient-types").append(viewRowSection);
-      viewRowSection.querySelector("td.alias").innerText = alias;
-      viewRowSection.querySelector("td.restriction").innerText = RESTRICTION[restriction];
-      viewRowSection.querySelector("td.modified").innerText = new Date().toDateString();
-
-      /* const accessEditButton = viewRowSection.querySelector("button.access");
-      accessEditButton.addEventListener("click", (event) => this.ingredientEdit());
-      accessEditButton.ingredient = ingredient; */
+      
+      this.#displayIngredientTypes();
 
       this.cancelEditor();
     } catch (error) {
@@ -135,13 +139,9 @@ class IngredientTypeEditorTabController extends Controller {
   }
 
   cancelEditor() {
-    this.#displayIngredientTypes();
     this.center.querySelector("section.ingredient-types-view").classList.remove("hidden");
     const editorSection = this.center.querySelector("section.ingredient-type-editor");
-    editorSection.classList.add("hidden")
-    editorSection.querySelector("input").value = "";
-    editorSection.querySelector("textarea").value = "";
-    editorSection.querySelector("select").value = "NONE";
+    editorSection.remove();
   }
 
   editIngredient(ingredient) {
@@ -153,7 +153,48 @@ class IngredientTypeEditorTabController extends Controller {
     editor.querySelector("select.restriction").value = ingredient.restriction || "NONE";
     editor.querySelector("textarea.description").value = ingredient.description || "";
   }
+
+  async validateAvatarTransfer(dataTransfer) {
+    const dataTransferItem = dataTransfer.items[0];
+    dataTransfer.dropEffect =
+      dataTransferItem.kind === "file" && dataTransferItem.type.startsWith("image/")
+        ? "copy"
+        : "none";
+  }
+
+  async processSubmitAvatar(ingredient, avatarFile) {
+    try {
+      
+      if (!avatarFile) throw new ReferenceError("no avatar file dropped!");
+      if (!avatarFile.type.startsWith("image/"))
+        throw new RangeError("illegal avatar file " + avatarFile.name + "!");
+      const sessionOwner = this.sharedProperties["session-owner"];
+
+      const query = new URLSearchParams();
+      query.set("description", avatarFile.name);
+      const resource = "/services/documents?" + query.toString();
+
+      const headers = { Accept: "text/plain", "Content-Type": avatarFile.type };
+      const response = await fetch(resource, {
+        method: "POST",
+        headers: headers,
+        body: avatarFile,
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+      ingredient.avatar.identity = parseInt(await response.text());
+
+      this.center.querySelector("section.ingredient-type-editor img.avatar").src =
+        "/services/documents/" + ingredient.avatar.identity;
+
+      this.#messageElement.value = "ok.";
+    } catch (error) {
+      this.#messageElement.value = error.toString();
+      console.error(error);
+    }
+  }
 }
+
+
 
 /*
  * Registers an event handler for the browser window's load event.
