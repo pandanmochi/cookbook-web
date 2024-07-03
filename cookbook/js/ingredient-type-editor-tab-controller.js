@@ -35,13 +35,14 @@ class IngredientTypeEditorTabController extends Controller {
     // register basic event listeners
     const createIngredientButton = viewSection.querySelector("button.create");
     createIngredientButton.addEventListener("click", (event) =>
-      this.#displayEditIngredient({ identity: 0, avatar: { identity: 1 } })
+      this.#displayIngredientEditor
+({ identity: 0, avatar: { identity: 1 } })
     );
 
     this.#displayIngredientTypes();
-    }
+  }
     
-  #displayEditIngredient(ingredient) {
+  #displayIngredientEditor(ingredient) {
     this.center.querySelector("section.ingredient-types-view").classList.add("hidden");
     const editorTemplate = document.querySelector("template.ingredient-type-editor");
     const editorSection = editorTemplate.content.firstElementChild.cloneNode(true);
@@ -88,7 +89,7 @@ class IngredientTypeEditorTabController extends Controller {
       viewRowSection.querySelector("td.modified").innerText = new Date(ingredient.modified).toDateString();
 
       const accessEditButton = viewRowSection.querySelector("button.access");
-      accessEditButton.addEventListener("click", (event) => this.#displayEditIngredient(ingredient));
+      accessEditButton.addEventListener("click", (event) => this.#displayIngredientEditor(ingredient));
     }
   }
 
@@ -107,7 +108,6 @@ class IngredientTypeEditorTabController extends Controller {
       this.#messageElement.value = "ok.";
       
       this.#displayIngredientTypes();
-
       this.cancelEditor();
     } catch (error) {
       this.#messageElement.value = error.toString();
@@ -142,16 +142,6 @@ class IngredientTypeEditorTabController extends Controller {
     this.center.querySelector("section.ingredient-types-view").classList.remove("hidden");
     const editorSection = this.center.querySelector("section.ingredient-type-editor");
     editorSection.remove();
-  }
-
-  editIngredient(ingredient) {
-    this.center.querySelector("section.ingredient-types-view").classList.add("hidden");
-    const editor = this.center.querySelector("section.ingredient-type-editor");
-    editor.classList.remove("hidden")
-    editor.querySelector("img.avatar").src = "/services/documents/" + ingredient.avatar.identity;
-    editor.querySelector("input.alias").value = ingredient.alias || "";
-    editor.querySelector("select.restriction").value = ingredient.restriction || "NONE";
-    editor.querySelector("textarea.description").value = ingredient.description || "";
   }
 
   async validateAvatarTransfer(dataTransfer) {
