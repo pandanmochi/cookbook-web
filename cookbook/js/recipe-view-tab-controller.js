@@ -1,5 +1,5 @@
 import Controller from "../../tool/controller.js";
-import { RESTRICTION, CATEGORY } from "./enums.js";
+import { RESTRICTION, CATEGORY, UNIT } from "./enums.js";
 
 /**
  * Skeleton for tab controller type.
@@ -86,7 +86,7 @@ class RecipeViewTabController extends Controller {
       recipeViewRowSection.querySelector("td.modified").innerText = new Date(recipe.modified).toDateString();
 
       const recipeButton = recipeViewRowSection.querySelector("button.access");
-      recipeButton.addEventListener("click", (event) => this.openRecipe());
+      recipeButton.addEventListener("click", (event) => this.openRecipe(recipe));
     }
   }
 
@@ -128,17 +128,16 @@ class RecipeViewTabController extends Controller {
 
   async queryRecipes() {
     try {
-
       const headers = { Accept: "application/json" };
       const resource = "/services/recipes";
 
       const response = await fetch(resource, { method: "GET", headers: headers });
 
       if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
-      this.#messageElement.value = "fetched ingredients.";
+      this.#messageElement.value = "fetched recipes.";
 
       const recipes = await response.json();
-
+      console.log(recipes)
       return recipes;
     } catch (error) {
       this.#messageElement.value = error.toString();
@@ -146,32 +145,71 @@ class RecipeViewTabController extends Controller {
     }
   }
 
-  openRecipe(){
+  async queryRecipeIngredients(identity) {
+    try {
+      const headers = { Accept: "application/json" };
+      const resource = "/services/recipes/" + identity + "/ingredients";
+      console.log(resource)
+      const response = await fetch(resource, { method: "GET", headers: headers });
 
-        // detaillierte Rezeptbeschreibung
-        const recipeViewTemplate = document.querySelector("template.recipe-view");
-        const recipeViewSection = recipeViewTemplate.content.firstElementChild.cloneNode(true);
+      if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+      this.#messageElement.value = "fetched ingredients.";
+
+      const ingredients = await response.json();
+      console.log(ingredients)
+      return ingredients;
+    } catch (error) {
+      this.#messageElement.value = error.toString();
+      console.error(error);
+    }
+  }
+
+  async openRecipe(recipe){
+    this.center.querySelector("section.recipes-view").classList.add("hidden");
+    this.center.querySelector("section.recipes-view-query").classList.add("hidden");
+
+    // detaillierte Rezeptbeschreibung
+    const recipeViewTemplate = document.querySelector("template.recipe-view");
+    const recipeViewSection = recipeViewTemplate.content.firstElementChild.cloneNode(true);
     
-        const ingredientRowTemplate = document.querySelector("template.recipe-view-ingredient-row");
-        const ingredientRowSection = ingredientRowTemplate.content.firstElementChild.cloneNode(true);
-    
-        const illustrationRowTemplate = document.querySelector("template.recipe-view-illustration-row");
-        const illustrationRowSection = illustrationRowTemplate.content.firstElementChild.cloneNode(true);
+    recipeViewSection.querySelector("img.avatar").src = "/services/documents/" + recipe.avatar.identity;
+    recipeViewSection.querySelector("input.title").value = recipe.title;
+    recipeViewSection.querySelector("input.restriction").value = RESTRICTION[recipe.restriction];
+    recipeViewSection.querySelector("input.category").value = CATEGORY[recipe.category];
+    recipeViewSection.querySelector("textarea.description").value = recipe.description;
+    recipeViewSection.querySelector("textarea.instruction").value = recipe.instruction;
+
+    const ingredients = await this.queryRecipeIngredients(recipe.identity);
+    const tableBody = recipeViewSection.querySelector("table.ingredients>tbody");
+    //tableBody.innerHTML = "";
+
+    for (const ingredient of ingredients) {
+      const ingredientRowTemplate = document.querySelector("template.recipe-view-ingredient-row");
+      const ingredientRowSection = ingredientRowTemplate.content.firstElementChild.cloneNode(true);
+      tableBody.append(ingredientRowSection);
+
+      ingredientRowSection.querySelector("img.avatar").src = "/services/documents/" + ingredient.type.avatar.identity;
+      ingredientRowSection.querySelector("td.alias").innerText = ingredient.type.alias;
+      ingredientRowSection.querySelector("td.restriction").innerText = RESTRICTION[ingredient.type.restriction];
+      ingredientRowSection.querySelector("td.amount").innerText = ingredient.amount;
+      ingredientRowSection.querySelector("td.unit").innerText = UNIT[ingredient.unit];
+    }
+
+    const illustrationRowTemplate = document.querySelector("template.recipe-view-illustration-row");
+    const illustrationRowSection = illustrationRowTemplate.content.firstElementChild.cloneNode(true);
   
-        const container = document.createElement("div");
-        container.classList.add("container");
-        this.center.append(container);
-        container.append(recipeViewSection);
-        container.append(ingredientRowSection);
-        container.append(illustrationRowSection);
+    this.center.append(recipeViewSection);
+    // container.append(illustrationRowSection);
 
-        const cancelButton = recipeViewSection.querySelector("button.cancel");
-        cancelButton.addEventListener("click", (event) => this.closeRecipe());
-    }
+    const cancelButton = recipeViewSection.querySelector("button.cancel");
+    cancelButton.addEventListener("click", (event) => this.closeRecipe());
+  }
 
-    closeRecipe(){
-      document.querySelector("div.container").remove();
-    }
+  closeRecipe(){
+    this.center.querySelector("section.recipes-view").classList.remove("hidden");
+    this.center.querySelector("section.recipes-view-query").classList.remove("hidden");
+    document.querySelector("section.recipe-view").remove();
+  }
 }
 
 /*
